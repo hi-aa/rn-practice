@@ -1,6 +1,7 @@
 import { Fontisto } from "@expo/vector-icons";
 import {
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -49,21 +50,30 @@ export default function Todos() {
 
   // todo 삭제
   const deleteTodo = async (key) => {
-    Alert.alert("Delete todo", "Are you sure?", [
-      {
-        text: "Cancel",
-      },
-      {
-        text: "Ok",
-        onPress: async () => {
-          const newTodos = { ...todos };
-          delete newTodos[key];
-
-          setTodos(newTodos);
-          await saveTodos(newTodos);
+    if (Platform.OS === "web") {
+      const ok = confirm("Do you want to delete this todo?");
+      if (ok) {
+        const newTodos = { ...todos };
+        delete newTodos[key];
+        setTodos(newTodos);
+        await saveTodos(newTodos);
+      }
+    } else {
+      Alert.alert("Delete todo", "Are you sure?", [
+        {
+          text: "Cancel",
         },
-      },
-    ]);
+        {
+          text: "Ok",
+          onPress: async () => {
+            const newTodos = { ...todos };
+            delete newTodos[key];
+            setTodos(newTodos);
+            await saveTodos(newTodos);
+          },
+        },
+      ]);
+    }
   };
 
   // todo 완료
@@ -133,6 +143,7 @@ export default function Todos() {
             return (
               <View key={i} style={styles.todo}>
                 <Text
+                  onPress={() => console.log("click")}
                   style={{
                     ...styles.todoText,
                     textDecorationLine: todos[key].done
